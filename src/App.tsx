@@ -1,12 +1,16 @@
-// src/App.tsx
-import Home from "./pages/Home";
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import CreateRoomPage from "./pages/CreateRoomPage";
+import JoinRoomPage from "./pages/JoinRoomPage";
+import LobbyPage from "./pages/LobbyPage"; // Si déjà créé
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <Home />
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/create" element={<CreateRoomPage />} />
+      <Route path="/join" element={<JoinRoomPage />} />
+      <Route path="/lobby/:roomCode" element={<LobbyPage />} />
+    </Routes>
   );
 }
-
-export default App;

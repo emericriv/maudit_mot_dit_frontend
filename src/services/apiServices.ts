@@ -8,17 +8,15 @@ const apiClient = axios.create({
   },
 });
 
-export default apiClient;
-
 export const createRoom = async (pseudo: string) => {
-  const response = await apiClient.post("game/create-room/", { pseudo });
+  const response = await apiClient.post("/game/create-room/", { pseudo });
   return response.data;
 };
 
-export const joinRoom = async (roomCode: string, pseudo: string) => {
-  const response = await apiClient.post("game/join-room/", {
-    room_code: roomCode,
+export async function joinRoom(pseudo: string, roomCode: string) {
+  const response = await apiClient.post("/game/join-room/", {
     pseudo,
+    room_code: roomCode,
   });
   return response.data;
-};
+}
