@@ -9,6 +9,13 @@ function CreateRoomPage() {
   const handleCreateRoom = async () => {
     try {
       const response = await createRoom(pseudo);
+      console.log("Room créée avec succès:", response);
+
+      // Stockage des informations de session
+      sessionStorage.setItem("sessionId", response.sessionId);
+      sessionStorage.setItem("playerId", response.playerId.toString());
+      sessionStorage.setItem("pseudo", response.pseudo);
+
       navigate(`/lobby/${response.roomCode}`);
     } catch (error) {
       alert("Erreur lors de la création de la room.");
