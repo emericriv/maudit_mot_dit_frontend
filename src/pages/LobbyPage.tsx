@@ -1,11 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
-interface Player {
-  id: string;
-  pseudo: string;
-  is_owner: boolean;
-}
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWebSocket } from "../contexts/WebSocketContext";
 
 interface Message {
   sender: string;
@@ -13,139 +8,93 @@ interface Message {
 }
 
 export default function LobbyPage() {
-  const { roomCode } = useParams();
+  const {
+    socket,
+    isConnected,
+    isConnecting,
+    sendMessage,
+    currentPlayerId,
+    players,
+    roomCode,
+    addMessageHandler,
+    removeMessageHandler,
+  } = useWebSocket();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [players, setPlayers] = useState<Player[]>([]);
   const [messageInput, setMessageInput] = useState("");
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const [isConnecting, setIsConnecting] = useState(true);
 
   useEffect(() => {
-    // Récupérer les informations de session
-    const sessionId = sessionStorage.getItem("sessionId");
+    const handleMessage = (data: any) => {
+      switch (data.type) {
+        case "welcome":
+          setMessages((prev) => [
+            ...prev,
+            { sender: "System", content: data.message },
+          ]);
+          break;
 
-    if (!sessionId) {
-      console.error("Session ID manquant");
-      navigate("/");
-      return;
-    }
+        case "player_joined":
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: "System",
+              content: `${data.player.pseudo} a rejoint la partie.`,
+            },
+          ]);
+          break;
 
-    if (!wsRef.current) {
-      setIsConnecting(true);
-      wsRef.current = new WebSocket(
-        `${import.meta.env.VITE_WS_URL}/game/${roomCode}/`
-      );
-      setSocket(wsRef.current);
+        case "player_left":
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: "System",
+              content: `${data.player.pseudo} a quitté la partie.`,
+            },
+          ]);
+          break;
+        case "lobby_message":
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: data.player.pseudo,
+              content: data.message,
+            },
+          ]);
+          break;
 
-      wsRef.current.onopen = () => {
-        console.log("Connecté au WebSocket");
-        setIsConnected(true);
-        setIsConnecting(false);
-        // Envoyer les informations d'initialisation
-        if (wsRef.current) {
-          wsRef.current.send(
-            JSON.stringify({
-              type: "init",
-              sessionId: sessionId,
-            })
-          );
-        }
-      };
+        case "game_started":
+          navigate(`/game/${roomCode}`);
+          break;
 
-      wsRef.current.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log("Message reçu:", data);
+        case "owner_changed":
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: "System",
+              content: `${data.player.pseudo} est le nouvel owner de la room.`,
+            },
+          ]);
+          break;
 
-        switch (data.type) {
-          case "welcome":
-            setMessages((prev) => [
-              ...prev,
-              { sender: "System", content: data.message },
-            ]);
-            break;
-
-          case "player_joined":
-            // Vérifier si le joueur n'existe pas déjà avant de l'ajouter
-            setPlayers((prev) => {
-              const playerExists = prev.some((p) => p.id === data.player.id);
-              if (playerExists) return prev;
-              return [...prev, data.player];
-            });
-            setMessages((prev) => [
-              ...prev,
-              {
-                sender: "System",
-                content: `${data.player.pseudo} a rejoint la partie.`,
-              },
-            ]);
-            break;
-
-          case "player_left":
-            setPlayers((prev) => prev.filter((p) => p.id !== data.player.id));
-            setMessages((prev) => [
-              ...prev,
-              {
-                sender: "System",
-                content: `${data.player.pseudo} a quitté la partie.`,
-              },
-            ]);
-            break;
-
-          case "game_message":
-            setMessages((prev) => [
-              ...prev,
-              {
-                sender: data.player.pseudo,
-                content: data.message,
-              },
-            ]);
-            break;
-
-          case "room_state":
-            setPlayers(data.players);
-            break;
-
-          case "error":
-            console.error("Erreur WebSocket:", data.message);
-            if (data.message === "Session invalide") {
-              navigate("/");
-            }
-            break;
-        }
-      };
-
-      wsRef.current.onerror = (error) => {
-        console.error("Erreur WebSocket:", error);
-        setIsConnected(false);
-        setIsConnecting(false);
-      };
-
-      wsRef.current.onclose = (event) => {
-        console.log("Déconnecté du WebSocket", event);
-        setIsConnected(false);
-        setIsConnecting(false);
-      };
-    }
-
-    // Nettoyage à la déconnexion
-    return () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
+        case "error":
+          console.error("Erreur WebSocket:", data.message);
+          if (data.message === "Session invalide") {
+            navigate("/");
+          }
+          break;
       }
     };
+
+    addMessageHandler(handleMessage);
+    return () => removeMessageHandler(handleMessage);
   }, []);
 
   const handleSendMessage = () => {
-    if (messageInput.trim() && socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(
-        JSON.stringify({
-          type: "message",
-          message: messageInput,
-        })
-      );
+    if (messageInput.trim()) {
+      sendMessage({
+        type: "message",
+        message: messageInput,
+      });
       setMessageInput("");
     }
   };
@@ -175,10 +124,13 @@ export default function LobbyPage() {
             ) : (
               <ul className="space-y-2">
                 {players.map((player) => (
-                  <li key={player.id} className="flex items-center">
+                  <li
+                    key={player.id}
+                    className="flex items-center justify-between"
+                  >
                     {player.pseudo}
                     {player.is_owner && (
-                      <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                      <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
                         Owner
                       </span>
                     )}
@@ -187,6 +139,31 @@ export default function LobbyPage() {
               </ul>
             )}
           </div>
+          {players.find(
+            (player) => player.id === currentPlayerId && player.is_owner
+          ) && (
+            <button
+              onClick={() => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                  socket.send(
+                    JSON.stringify({
+                      type: "start_game",
+                    })
+                  );
+                }
+              }}
+              disabled={players.length < 3}
+              className={`mt-4 w-full py-2 px-4 rounded font-medium ${
+                players.length >= 3
+                  ? "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {players.length >= 3
+                ? "Démarrer la partie"
+                : `En attente de joueurs (${players.length}/3)`}
+            </button>
+          )}
         </div>
 
         <div className="col-span-2">
@@ -205,7 +182,7 @@ export default function LobbyPage() {
               type="text"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Tapez votre message..."
               className="flex-1 p-2 border rounded"
             />
