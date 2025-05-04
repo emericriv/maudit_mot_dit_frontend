@@ -20,7 +20,8 @@ export default function LobbyPage() {
   const [messageInput, setMessageInput] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null); // Déplacé ici
+  const wsRef = useRef<WebSocket | null>(null);
+  const [isConnecting, setIsConnecting] = useState(true);
 
   useEffect(() => {
     // Récupérer les informations de session
@@ -33,6 +34,7 @@ export default function LobbyPage() {
     }
 
     if (!wsRef.current) {
+      setIsConnecting(true);
       wsRef.current = new WebSocket(
         `${import.meta.env.VITE_WS_URL}/game/${roomCode}/`
       );
@@ -41,6 +43,7 @@ export default function LobbyPage() {
       wsRef.current.onopen = () => {
         console.log("Connecté au WebSocket");
         setIsConnected(true);
+        setIsConnecting(false);
         // Envoyer les informations d'initialisation
         if (wsRef.current) {
           wsRef.current.send(
@@ -117,11 +120,13 @@ export default function LobbyPage() {
       wsRef.current.onerror = (error) => {
         console.error("Erreur WebSocket:", error);
         setIsConnected(false);
+        setIsConnecting(false);
       };
 
       wsRef.current.onclose = (event) => {
         console.log("Déconnecté du WebSocket", event);
         setIsConnected(false);
+        setIsConnecting(false);
       };
     }
 
@@ -149,10 +154,16 @@ export default function LobbyPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Room: {roomCode}</h1>
 
-      {!isConnected && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-          Connexion au serveur perdue. Tentative de reconnexion...
+      {isConnecting ? (
+        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4">
+          Connexion au serveur en cours...
         </div>
+      ) : (
+        !isConnected && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+            Connexion au serveur perdue. Tentative de reconnexion...
+          </div>
+        )
       )}
 
       <div className="grid grid-cols-3 gap-6">
