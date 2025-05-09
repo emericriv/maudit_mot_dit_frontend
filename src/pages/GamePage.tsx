@@ -6,6 +6,17 @@ interface WordChoice {
   word2: { word: string; clues: number };
 }
 
+interface GameState {
+  phase: "choice" | "clue" | "guess";
+  currentPlayer: string;
+  timeLeft: number;
+  wordChoices: WordChoice | null;
+  selectedWord: string;
+  requiredClues: number;
+  givenClues: string[];
+  guesses: Array<{ playerId: string; word: string }>;
+}
+
 export default function GamePage() {
   const {
     isConnected,
@@ -17,14 +28,15 @@ export default function GamePage() {
     sendMessage,
   } = useWebSocket();
 
-  const [gameState, setGameState] = useState({
+  const [gameState, setGameState] = useState<GameState>({
     phase: "choice",
     currentPlayer: "",
     timeLeft: 30,
-    wordChoices: null as WordChoice | null,
+    wordChoices: null,
     selectedWord: "",
-    givenClues: [] as string[],
-    guesses: [] as Array<{ playerId: string; word: string }>,
+    requiredClues: 0,
+    givenClues: [],
+    guesses: [],
   });
 
   useEffect(() => {
@@ -41,8 +53,10 @@ export default function GamePage() {
             ...prev,
             currentPlayer: data.currentPlayer,
             wordChoices: data.wordChoices,
-            timeLeft: 30,
+            timeLeft: data.timeLeft,
             phase: "choice",
+            givenClues: [],
+            guesses: [],
           }));
           break;
 
@@ -60,6 +74,7 @@ export default function GamePage() {
             ...prev,
             phase: "clue",
             selectedWord: data.word,
+            requiredClues: data.required_clues,
             timeLeft: 60,
           }));
           break;
@@ -67,7 +82,10 @@ export default function GamePage() {
         case "clue_given":
           setGameState((prev) => ({
             ...prev,
+            phase: "guess",
             givenClues: [...prev.givenClues, data.clue],
+            timeLeft: 60,
+            guesses: [],
           }));
           break;
 
@@ -76,10 +94,7 @@ export default function GamePage() {
             ...prev,
             guesses: [
               ...prev.guesses,
-              {
-                playerId: data.playerId,
-                word: data.guess,
-              },
+              { playerId: data.playerId, word: data.guess },
             ],
           }));
           break;
@@ -91,6 +106,7 @@ export default function GamePage() {
             timeLeft: 30,
             wordChoices: data.wordChoices,
             selectedWord: "",
+            requiredClues: 0,
             givenClues: [],
             guesses: [],
           });
@@ -155,89 +171,132 @@ export default function GamePage() {
 
       {/* Zone de jeu principale */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-        <div className="text-xl mb-4 text-center">
-          Temps restant : {gameState.timeLeft}s
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-xl">Phase : {gameState.phase}</div>
+          <div className="text-xl font-bold">
+            Temps restant : {gameState.timeLeft}s
+          </div>
+          {gameState.requiredClues > 0 && (
+            <div className="text-lg">
+              Indices requis : {gameState.requiredClues}
+            </div>
+          )}
         </div>
 
-        <p>Game state : {gameState.phase}</p>
-
-        {gameState.phase === "choice" &&
-          gameState.currentPlayer === currentPlayerId && (
-            <div className="grid grid-cols-2 gap-4">
-              {gameState.wordChoices && (
-                <>
-                  <button
-                    onClick={() =>
-                      handleWordChoice(gameState.wordChoices!.word1.word)
-                    }
-                    className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100"
-                  >
-                    {gameState.wordChoices.word1.word}
-                    <div className="text-sm text-gray-600">
-                      {gameState.wordChoices.word1.clues} indices requis
+        {/* Zone de jeu active */}
+        <div className="mt-4">
+          {/* Phase de choix du mot */}
+          {gameState.phase === "choice" &&
+            gameState.currentPlayer === currentPlayerId &&
+            gameState.wordChoices && (
+              <div className="grid grid-cols-2 gap-4">
+                {gameState.phase === "choice" &&
+                  gameState.currentPlayer === currentPlayerId && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {gameState.wordChoices && (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleWordChoice(
+                                gameState.wordChoices!.word1.word
+                              )
+                            }
+                            className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100"
+                          >
+                            {gameState.wordChoices.word1.word}
+                            <div className="text-sm text-gray-600">
+                              {gameState.wordChoices.word1.clues} indices requis
+                            </div>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleWordChoice(
+                                gameState.wordChoices!.word2.word
+                              )
+                            }
+                            className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100"
+                          >
+                            {gameState.wordChoices.word2.word}
+                            <div className="text-sm text-gray-600">
+                              {gameState.wordChoices.word2.clues} indices requis
+                            </div>
+                          </button>
+                        </>
+                      )}
                     </div>
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleWordChoice(gameState.wordChoices!.word2.word)
+                  )}
+              </div>
+            )}
+
+          {/* Phase d'indice */}
+          {gameState.phase === "clue" &&
+            gameState.currentPlayer === currentPlayerId && (
+              <div className="text-center">
+                <p className="mb-2">
+                  Donnez un indice pour faire deviner le mot :{" "}
+                  <strong>{gameState.selectedWord}</strong>
+                </p>
+                <input
+                  type="text"
+                  placeholder="Tapez votre indice..."
+                  className="w-full p-2 border rounded"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                      handleClueSubmit(e.currentTarget.value);
+                      e.currentTarget.value = "";
                     }
-                    className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100"
-                  >
-                    {gameState.wordChoices.word2.word}
-                    <div className="text-sm text-gray-600">
-                      {gameState.wordChoices.word2.clues} indices requis
-                    </div>
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+                  }}
+                />
+              </div>
+            )}
 
-        {gameState.phase === "clue" &&
-          gameState.currentPlayer === currentPlayerId && (
-            <div className="text-center">
-              <input
-                type="text"
-                placeholder="Donnez un indice..."
-                className="w-full p-2 border rounded"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleClueSubmit(e.currentTarget.value);
-                    e.currentTarget.value = "";
-                  }
-                }}
-              />
-            </div>
-          )}
-
-        {gameState.phase !== "choice" &&
-          gameState.currentPlayer !== currentPlayerId && (
-            <div className="text-center">
-              <input
-                type="text"
-                placeholder="Devinez le mot..."
-                className="w-full p-2 border rounded"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleGuess(e.currentTarget.value);
-                    e.currentTarget.value = "";
-                  }
-                }}
-              />
-            </div>
-          )}
-      </div>
-
-      {/* Zone des indices */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h3 className="font-bold mb-4">Indices donnés :</h3>
-        <div className="flex flex-wrap gap-2">
-          {gameState.givenClues.map((clue, index) => (
-            <div key={index} className="bg-blue-100 px-3 py-1 rounded-full">
-              {clue}
-            </div>
-          ))}
+          {/* Phase de devinette */}
+          {gameState.phase === "guess" &&
+            gameState.currentPlayer !== currentPlayerId &&
+            !gameState.guesses.some((g) => g.playerId === currentPlayerId) && (
+              <div className="text-center">
+                <p className="mb-2">Devinez le mot à partir des indices :</p>
+                <input
+                  type="text"
+                  placeholder="Proposez votre mot..."
+                  className="w-full p-2 border rounded"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                      handleGuess(e.currentTarget.value);
+                      e.currentTarget.value = "";
+                    }
+                  }}
+                />
+              </div>
+            )}
         </div>
+
+        {/* Zone des indices donnés */}
+        <div className="mt-6">
+          <h3 className="font-bold mb-2">Indices donnés :</h3>
+          <div className="flex flex-wrap gap-2">
+            {gameState.givenClues.map((clue, index) => (
+              <div key={index} className="bg-blue-100 px-3 py-1 rounded-full">
+                {clue}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Zone des tentatives */}
+        {gameState.guesses.length > 0 && (
+          <div className="mt-6">
+            <h3 className="font-bold mb-2">Tentatives :</h3>
+            <div className="flex flex-wrap gap-2">
+              {gameState.guesses.map((guess, index) => (
+                <div key={index} className="bg-gray-100 px-3 py-1 rounded-full">
+                  {players.find((p) => p.id === guess.playerId)?.pseudo}:{" "}
+                  {guess.word}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
