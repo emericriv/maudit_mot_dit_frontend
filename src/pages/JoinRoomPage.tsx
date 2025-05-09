@@ -49,7 +49,7 @@ export default function JoinRoomPage() {
         {error && <p className="text-red-500">{error}</p>}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded"
+          className="w-full bg-blue-600 text-white py-2 rounded cursor-pointer hover:bg-blue-700"
         >
           Join Room
         </button>
