@@ -14,7 +14,16 @@ interface GameState {
   selectedWord: string;
   requiredClues: number;
   givenClues: string[];
-  guesses: Array<{ playerId: string; word: string }>;
+  currentGuesses: Array<{
+    playerId: string;
+    word: string;
+    timestamp: string;
+  }>;
+  guesses: Array<{
+    playerId: string;
+    word: string;
+    timestamp: string;
+  }>;
 }
 
 export default function GamePage() {
@@ -36,6 +45,7 @@ export default function GamePage() {
     selectedWord: "",
     requiredClues: 0,
     givenClues: [],
+    currentGuesses: [],
     guesses: [],
   });
 
@@ -46,7 +56,7 @@ export default function GamePage() {
   // WebSocket message handler
   useEffect(() => {
     const handleMessage = (data: any) => {
-      console.log("Received message:", data);
+      console.log("Message reçu :", data);
       switch (data.type) {
         case "game_started":
           setGameState((prev) => ({
@@ -85,21 +95,29 @@ export default function GamePage() {
             phase: "guess",
             givenClues: [...prev.givenClues, data.clue],
             timeLeft: 60,
-            guesses: [],
+            currentGuesses: [],
+            guesses: prev.guesses,
           }));
           break;
 
         case "guess_made":
           setGameState((prev) => ({
             ...prev,
-            guesses: [
-              ...prev.guesses,
-              { playerId: data.playerId, word: data.guess },
+            currentGuesses: [
+              ...prev.currentGuesses,
+              {
+                playerId: data.playerId,
+                word: data.guess,
+                timestamp: data.timestamp,
+              },
             ],
+            guesses: data.allGuesses,
           }));
+          console.log("data :", data);
           break;
 
         case "turn_end":
+          console.log("Tour terminé", data);
           setGameState({
             phase: "choice",
             currentPlayer: data.nextPlayer,
@@ -108,8 +126,12 @@ export default function GamePage() {
             selectedWord: "",
             requiredClues: 0,
             givenClues: [],
+            currentGuesses: [],
             guesses: [],
           });
+          break;
+        case "error":
+          alert(data.message);
           break;
       }
     };
@@ -137,6 +159,31 @@ export default function GamePage() {
       type: "make_guess",
       guess,
     });
+  };
+
+  const getPhaseMessage = () => {
+    const isCurrentPlayer = gameState.currentPlayer === currentPlayerId;
+
+    switch (gameState.phase) {
+      case "choice":
+        return isCurrentPlayer
+          ? "C'est à vous de choisir un mot !"
+          : `${
+              players.find((p) => p.id === gameState.currentPlayer)?.pseudo
+            } choisit un mot...`;
+      case "clue":
+        return isCurrentPlayer
+          ? "Donnez un indice pour faire deviner votre mot !"
+          : `${
+              players.find((p) => p.id === gameState.currentPlayer)?.pseudo
+            } donne un indice...`;
+      case "guess":
+        return isCurrentPlayer
+          ? "Attendez que les autres joueurs devinent..."
+          : "À vous de deviner le mot !";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -181,6 +228,29 @@ export default function GamePage() {
               Indices requis : {gameState.requiredClues}
             </div>
           )}
+          {gameState.requiredClues > 0 && (
+            <div className="flex items-center gap-2 text-lg">
+              <span>Indices :</span>
+              <div className="flex gap-1">
+                {Array.from({ length: gameState.requiredClues }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${
+                      i < gameState.givenClues.length
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">
+                ({gameState.givenClues.length}/{gameState.requiredClues})
+              </span>
+            </div>
+          )}
+          <div className="text-center text-xl font-medium mb-4">
+            {getPhaseMessage()}
+          </div>
         </div>
 
         {/* Zone de jeu active */}
@@ -253,7 +323,9 @@ export default function GamePage() {
           {/* Phase de devinette */}
           {gameState.phase === "guess" &&
             gameState.currentPlayer !== currentPlayerId &&
-            !gameState.guesses.some((g) => g.playerId === currentPlayerId) && (
+            !gameState.currentGuesses.some(
+              (g) => g.playerId === currentPlayerId
+            ) && (
               <div className="text-center">
                 <p className="mb-2">Devinez le mot à partir des indices :</p>
                 <input
@@ -284,16 +356,57 @@ export default function GamePage() {
         </div>
 
         {/* Zone des tentatives */}
-        {gameState.guesses.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-bold mb-2">Tentatives :</h3>
-            <div className="flex flex-wrap gap-2">
-              {gameState.guesses.map((guess, index) => (
-                <div key={index} className="bg-gray-100 px-3 py-1 rounded-full">
-                  {players.find((p) => p.id === guess.playerId)?.pseudo}:{" "}
-                  {guess.word}
+        <div className="mt-6">
+          <h3 className="font-bold mb-2">Tentatives de ce tour :</h3>
+          <div className="flex flex-col gap-2">
+            {gameState.currentGuesses
+              .sort(
+                (a, b) =>
+                  new Date(a.timestamp).getTime() -
+                  new Date(b.timestamp).getTime()
+              )
+              .map((guess, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-100 px-3 py-2 rounded-lg flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-medium">
+                      {players.find((p) => p.id === guess.playerId)?.pseudo}
+                    </span>
+                    : {guess.word}
+                  </div>
                 </div>
               ))}
+          </div>
+        </div>
+
+        {gameState.guesses.length > 0 && (
+          <div className="mt-6">
+            <h3 className="font-bold mb-2">Historique des tentatives :</h3>
+            <div className="flex flex-col gap-2">
+              {gameState.guesses
+                .sort(
+                  (a, b) =>
+                    new Date(a.timestamp).getTime() -
+                    new Date(b.timestamp).getTime()
+                )
+                .map((guess, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-100 px-3 py-2 rounded-lg flex justify-between items-center"
+                  >
+                    <div>
+                      <span className="font-medium">
+                        {players.find((p) => p.id === guess.playerId)?.pseudo}
+                      </span>
+                      : {guess.word}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {new Date(guess.timestamp).toLocaleTimeString()}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}

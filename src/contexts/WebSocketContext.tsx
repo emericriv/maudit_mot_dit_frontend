@@ -133,6 +133,11 @@ export function WebSocketProvider({
           }))
         );
         break;
+      case "turn_end":
+        if (data.players) {
+          setPlayers(data.players);
+        }
+        break;
     }
   };
 
