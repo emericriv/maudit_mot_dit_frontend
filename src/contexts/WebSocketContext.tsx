@@ -134,6 +134,7 @@ export function WebSocketProvider({
         );
         break;
       case "turn_end":
+      case "round_complete":
         if (data.players) {
           setPlayers(data.players);
         }
