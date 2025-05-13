@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
-@layer reset {
+@theme {
+  color-scheme: dark;
+  --color-primary: #feca26;
+  --color-secondary: #f6e7d0;
+  /* --color-accent: #9013fe; */
+  --color-background: #3d1c63;
+  --color-text: #fff;
+  --color-border: #feca26;
+}
+
+@layer base {
 
   *,
   *::before,
