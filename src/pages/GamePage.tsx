@@ -159,6 +159,13 @@ export default function GamePage() {
             roundComplete: null,
           });
           break;
+        case "timer_end":
+          // Informer le backend que le timer est terminé
+          sendMessage({
+            type: "timer_end",
+            phase: gameState.phase,
+          });
+          break;
         case "error":
           alert(data.message);
           break;
@@ -192,20 +199,21 @@ export default function GamePage() {
 
   const getPhaseMessage = () => {
     const isCurrentPlayer = gameState.currentPlayer === currentPlayerId;
+    const currentPlayerPseudo = players.find(
+      (p) => p.id === gameState.currentPlayer
+    )?.pseudo;
 
     switch (gameState.phase) {
       case "choice":
         return isCurrentPlayer
           ? "C'est à vous de choisir un mot !"
-          : `${
-              players.find((p) => p.id === gameState.currentPlayer)?.pseudo
-            } choisit un mot...`;
+          : currentPlayerPseudo
+          ? `${currentPlayerPseudo} choisit un mot...`
+          : "Sélection du joueur en cours...";
       case "clue":
         return isCurrentPlayer
           ? "Donnez un indice pour faire deviner votre mot !"
-          : `${
-              players.find((p) => p.id === gameState.currentPlayer)?.pseudo
-            } donne un indice...`;
+          : `${currentPlayerPseudo} donne un indice...`;
       case "guess":
         return isCurrentPlayer
           ? "Attendez que les autres joueurs devinent..."
