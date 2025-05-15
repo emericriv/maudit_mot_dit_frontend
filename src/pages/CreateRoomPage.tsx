@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { createRoom } from "../services/apiServices";
 
-function CreateRoomPage() {
+export default function CreateRoomPage() {
   const [pseudo, setPseudo] = useState("");
   const navigate = useNavigate();
 
   const handleCreateRoom = async () => {
     try {
       const response = await createRoom(pseudo);
-      console.log("Room créée avec succès:", response);
-
-      // Stockage des informations de session
       sessionStorage.setItem("sessionId", response.sessionId);
       sessionStorage.setItem("playerId", response.playerId.toString());
       sessionStorage.setItem("pseudo", response.pseudo);
@@ -23,23 +20,45 @@ function CreateRoomPage() {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Créer une Room</h1>
-      <input
-        type="text"
-        placeholder="Votre pseudo"
-        value={pseudo}
-        onChange={(e) => setPseudo(e.target.value)}
-        className="w-full mb-4 px-3 py-2 border rounded"
-      />
-      <button
-        onClick={handleCreateRoom}
-        className="w-full bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600"
+    <div className="min-h-screen bg-background text-text flex flex-col items-center justify-center px-4">
+      {/* Lien de retour */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 text-primary hover:underline text-sm flex items-center"
       >
-        Créer
-      </button>
+        ← Retour à l'accueil
+        <img
+          src="/Maudit_mot_dit_logo.png"
+          alt="Logo Maudit Mot Dit"
+          className="w-10 h-10"
+        />
+      </Link>
+
+      {/* Bloc central */}
+      <div className="bg-secondary text-background p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Créer une partie
+        </h1>
+
+        <label htmlFor="pseudo" className="block mb-2 font-semibold">
+          Choisissez un pseudo
+        </label>
+        <input
+          id="pseudo"
+          type="text"
+          placeholder="Votre pseudo"
+          value={pseudo}
+          onChange={(e) => setPseudo(e.target.value)}
+          className="w-full px-4 py-2 rounded-full border border-primary focus:outline-none focus:ring-2 focus:ring-primary/60 mb-6"
+        />
+
+        <button
+          onClick={handleCreateRoom}
+          className="w-full bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-accent hover:cursor-pointer transition-all"
+        >
+          Créer la room
+        </button>
+      </div>
     </div>
   );
 }
-
-export default CreateRoomPage;

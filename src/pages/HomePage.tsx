@@ -48,13 +48,13 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-center gap-4">
             <button
               onClick={handleCreateRoom}
-              className="bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-primary/90 hover:cursor-pointer transition-all"
+              className="bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-accent hover:cursor-pointer transition-all"
             >
               Créer une partie
             </button>
             <button
               onClick={handleJoinRoom}
-              className="bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-primary/90 hover:cursor-pointer transition-all"
+              className="bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-accent hover:cursor-pointer transition-all"
             >
               Rejoindre une partie
             </button>

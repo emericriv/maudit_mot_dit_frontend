@@ -21,10 +21,10 @@ export const GuessList = ({
           .map((guess, index) => (
             <div
               key={index}
-              className="bg-gray-100 px-3 py-2 rounded-lg flex justify-between items-center"
+              className="bg-card border border-border px-3 py-2 rounded-lg flex justify-between items-center"
             >
               <div>
-                <span className="font-medium">
+                <span className="font-medium text-primary">
                   {players.find((p) => p.id === guess.playerId)?.pseudo}
                 </span>
                 : {guess.word}
@@ -47,15 +47,15 @@ export const GuessList = ({
             .map((guess, index) => (
               <div
                 key={index}
-                className="bg-gray-100 px-3 py-2 rounded-lg flex justify-between items-center"
+                className="bg-card border border-border px-3 py-2 rounded-lg flex justify-between items-center"
               >
                 <div>
-                  <span className="font-medium">
+                  <span className="font-medium text-primary">
                     {players.find((p) => p.id === guess.playerId)?.pseudo}
                   </span>
                   : {guess.word}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   {new Date(guess.timestamp).toLocaleTimeString()}
                 </div>
               </div>

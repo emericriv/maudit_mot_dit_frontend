@@ -7,9 +7,12 @@ export const CluesList = ({ givenClues }: CluesListProps) => (
     <h3 className="font-bold mb-2">Indices donnés :</h3>
     <div className="flex flex-wrap gap-2">
       {givenClues.map((clue, index) => (
-        <div key={index} className="bg-blue-100 px-3 py-1 rounded-full">
+        <span
+          key={index}
+          className="bg-accent text-background px-3 py-1 rounded-full text-sm"
+        >
           {clue}
-        </div>
+        </span>
       ))}
     </div>
   </div>

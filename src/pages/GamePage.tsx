@@ -216,15 +216,15 @@ export default function GamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Status de connexion */}
+    <div className="min-h-screen bg-background text-text px-4 py-6">
+      {/* Connexion status */}
       {isConnecting ? (
-        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4">
+        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded mb-4">
           Connexion en cours...
         </div>
       ) : (
         !isConnected && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-4">
             Connexion perdue
           </div>
         )
@@ -238,7 +238,7 @@ export default function GamePage() {
         currentPlayer={gameState.currentPlayer}
       />
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+      <div className="bg-muted text-text rounded-xl shadow-md border border-border p-6 mb-6">
         <GameHeader
           timeLeft={gameState.timeLeft}
           requiredClues={gameState.requiredClues}
@@ -270,7 +270,6 @@ export default function GamePage() {
         </div>
 
         <CluesList givenClues={gameState.givenClues} />
-
         <GuessList
           currentGuesses={gameState.currentGuesses}
           guesses={gameState.guesses}

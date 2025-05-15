@@ -16,8 +16,9 @@ export const GameHeader = ({
   phaseMessage,
 }: GameHeaderProps) => {
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="text-xl font-bold">Temps restant : {timeLeft}s</div>
+    <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+      <div className="text-xl font-bold">⏳ Temps restant : {timeLeft}s</div>
+
       {requiredClues > 0 && currentPlayer === currentPlayerId && (
         <div className="flex items-center gap-2 text-lg">
           <span>Indices :</span>
@@ -31,12 +32,15 @@ export const GameHeader = ({
               />
             ))}
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             ({givenClues.length}/{requiredClues})
           </span>
         </div>
       )}
-      <div className="text-center text-xl font-medium mb-4">{phaseMessage}</div>
+
+      <div className="text-xl text-primary font-medium text-center w-full mt-2">
+        {phaseMessage}
+      </div>
     </div>
   );
 };

@@ -16,24 +16,18 @@ export const WordChoicePhase = ({
     <div className="grid grid-cols-2 gap-4">
       {wordChoices && (
         <>
-          <button
-            onClick={() => onWordChoice(wordChoices!.word1.word)}
-            className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer"
-          >
-            {wordChoices.word1.word}
-            <div className="text-sm text-gray-600">
-              {wordChoices.word1.clues} indices requis
-            </div>
-          </button>
-          <button
-            onClick={() => onWordChoice(wordChoices!.word2.word)}
-            className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer"
-          >
-            {wordChoices.word2.word}
-            <div className="text-sm text-gray-600">
-              {wordChoices.word2.clues} indices requis
-            </div>
-          </button>
+          {[wordChoices.word1, wordChoices.word2].map((w, index) => (
+            <button
+              key={index}
+              onClick={() => onWordChoice(w.word)}
+              className="p-4 bg-card border border-border rounded-xl hover:bg-muted transition duration-200 cursor-pointer text-left"
+            >
+              <div className="text-lg font-semibold text-primary">{w.word}</div>
+              <div className="text-sm text-muted-foreground">
+                {w.clues} indices requis
+              </div>
+            </button>
+          ))}
         </>
       )}
     </div>
