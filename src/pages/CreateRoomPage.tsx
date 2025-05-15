@@ -6,7 +6,8 @@ export default function CreateRoomPage() {
   const [pseudo, setPseudo] = useState("");
   const navigate = useNavigate();
 
-  const handleCreateRoom = async () => {
+  const handleCreateRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       const response = await createRoom(pseudo);
       sessionStorage.setItem("sessionId", response.sessionId);
@@ -40,24 +41,26 @@ export default function CreateRoomPage() {
           Créer une partie
         </h1>
 
-        <label htmlFor="pseudo" className="block mb-2 font-semibold">
-          Choisissez un pseudo
-        </label>
-        <input
-          id="pseudo"
-          type="text"
-          placeholder="Votre pseudo"
-          value={pseudo}
-          onChange={(e) => setPseudo(e.target.value)}
-          className="w-full px-4 py-2 rounded-full border border-primary focus:outline-none focus:ring-2 focus:ring-primary/60 mb-6"
-        />
+        <form onSubmit={handleCreateRoom}>
+          <label htmlFor="pseudo" className="block mb-2 font-semibold">
+            Choisissez un pseudo
+          </label>
+          <input
+            id="pseudo"
+            type="text"
+            placeholder="Votre pseudo"
+            value={pseudo}
+            onChange={(e) => setPseudo(e.target.value)}
+            className="w-full px-4 py-2 rounded-full border border-primary focus:outline-none focus:ring-2 focus:ring-primary/60 mb-6"
+          />
 
-        <button
-          onClick={handleCreateRoom}
-          className="w-full bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-accent hover:cursor-pointer transition-all"
-        >
-          Créer la room
-        </button>
+          <button
+            type="submit"
+            className="w-full bg-primary text-background font-bold px-6 py-3 rounded-full hover:bg-accent hover:cursor-pointer transition-all"
+          >
+            Créer la room
+          </button>
+        </form>
       </div>
     </div>
   );
