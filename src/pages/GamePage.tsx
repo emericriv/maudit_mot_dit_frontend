@@ -144,7 +144,7 @@ export default function GamePage() {
           }));
           break;
 
-        case "turn_end":
+        case "new_round":
           console.log("Tour terminé", data);
           setGameState({
             phase: "choice",
@@ -239,15 +239,6 @@ export default function GamePage() {
       />
 
       <div className="bg-muted text-text rounded-xl shadow-md border border-border p-6 mb-6">
-        <GameHeader
-          timeLeft={gameState.timeLeft}
-          requiredClues={gameState.requiredClues}
-          givenClues={gameState.givenClues}
-          currentPlayer={gameState.currentPlayer}
-          currentPlayerId={currentPlayerId}
-          phaseMessage={getPhaseMessage()}
-        />
-
         <div className="mt-4">
           {gameState.roundComplete ? (
             <RoundComplete
@@ -258,14 +249,24 @@ export default function GamePage() {
               onNextRound={() => sendMessage({ type: "start_new_round" })}
             />
           ) : (
-            <GamePhases
-              phase={gameState.phase}
-              gameState={gameState}
-              currentPlayerId={currentPlayerId}
-              onWordChoice={handleWordChoice}
-              onClueSubmit={handleClueSubmit}
-              onGuess={handleGuess}
-            />
+            <>
+              <GameHeader
+                timeLeft={gameState.timeLeft}
+                requiredClues={gameState.requiredClues}
+                givenClues={gameState.givenClues}
+                currentPlayer={gameState.currentPlayer}
+                currentPlayerId={currentPlayerId}
+                phaseMessage={getPhaseMessage()}
+              />
+              <GamePhases
+                phase={gameState.phase}
+                gameState={gameState}
+                currentPlayerId={currentPlayerId}
+                onWordChoice={handleWordChoice}
+                onClueSubmit={handleClueSubmit}
+                onGuess={handleGuess}
+              />
+            </>
           )}
         </div>
 

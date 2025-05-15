@@ -100,7 +100,7 @@ export default function LobbyPage() {
         <img
           src="/Maudit_mot_dit_logo.png"
           alt="Logo Maudit Mot Dit"
-          className="w-10 h-10 ml-2"
+          className="w-10 h-10 ml-1"
         />
       </Link>
 

@@ -1,6 +1,6 @@
 interface RoundCompleteProps {
   roundData: {
-    winner: { id: string; pseudo: string };
+    winner?: { id: string; pseudo: string };
     cluesCount: number;
     requiredClues: number;
     word: string;
@@ -19,19 +19,39 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
   return (
     <div className="bg-success/10 border border-success text-success p-6 rounded-lg">
       <h2 className="text-xl font-bold mb-4">Round terminé !</h2>
-      <p className="mb-2">
-        {roundData.winner.pseudo} a trouvé le mot "
-        <strong>{roundData.word}</strong>" en {roundData.cluesCount} indices !
-      </p>
-      {roundData.perfect ? (
-        <p className="mb-4">
-          🟢 Parfait ! Les deux joueurs gagnent {roundData.cluesCount} points.
-        </p>
+
+      {roundData.winner ? (
+        <>
+          <h3 className="text-2xl font-bold mb-4">
+            {roundData.winner.pseudo} a trouvé le mot !
+          </h3>
+          <p className="mb-2">
+            {roundData.winner.pseudo} a trouvé le mot "
+            <strong>{roundData.word}</strong>" en {roundData.cluesCount} indices
+            !
+          </p>
+          {roundData.perfect ? (
+            <p className="mb-4">
+              🟢 Parfait ! Les deux joueurs gagnent {roundData.cluesCount}{" "}
+              points.
+            </p>
+          ) : (
+            <p className="text-warning mb-4">
+              ⚠️ {roundData.requiredClues} indices étaient attendus :{" "}
+              {roundData.currentPlayer.pseudo} ne gagne pas de points.
+            </p>
+          )}
+        </>
       ) : (
-        <p className="text-warning mb-4">
-          ⚠️ Trouvé trop tôt : {roundData.currentPlayer.pseudo} ne gagne pas de
-          points.
-        </p>
+        <>
+          <h3 className="text-2xl font-bold mb-4 text-red-500">
+            Personne n'a trouvé le mot !
+          </h3>
+          <p className="mb-2">Le mot était : {roundData.word}</p>
+          <p className="mb-4">
+            Il devait être deviné en {roundData.requiredClues} indices
+          </p>
+        </>
       )}
       {isOwner && (
         <div className="flex justify-center mt-4">

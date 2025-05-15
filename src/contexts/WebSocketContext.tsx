@@ -133,7 +133,7 @@ export function WebSocketProvider({
           }))
         );
         break;
-      case "turn_end":
+      case "start_new_round":
       case "round_complete":
         if (data.players) {
           setPlayers(data.players);
