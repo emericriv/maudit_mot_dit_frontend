@@ -159,13 +159,6 @@ export default function GamePage() {
             roundComplete: null,
           });
           break;
-        case "timer_end":
-          // Informer le backend que le timer est terminé
-          sendMessage({
-            type: "timer_end",
-            phase: gameState.phase,
-          });
-          break;
         case "error":
           alert(data.message);
           break;
