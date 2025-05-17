@@ -6,6 +6,7 @@ import { CluesList } from "../components/ClueList";
 import { GuessList } from "../components/GuessList";
 import { RoundComplete } from "../components/RoundComplete";
 import { GamePhases } from "../components/GamePhases";
+import { Toaster, toast } from "react-hot-toast";
 
 interface WordChoice {
   word1: { word: string; clues: number };
@@ -160,7 +161,7 @@ export default function GamePage() {
           });
           break;
         case "error":
-          alert(data.message);
+          toast.error(data.message);
           break;
       }
     };
@@ -218,6 +219,7 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-background text-text px-4 py-6">
+      <Toaster position="top-right" />
       {/* Connexion status */}
       {isConnecting ? (
         <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded mb-4">
