@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { Player } from "../services/apiServices";
 
 interface WebSocketContextType {
   socket: WebSocket | null;
@@ -17,13 +18,6 @@ interface WebSocketContextType {
   roomCode: string;
   addMessageHandler: (handler: (data: any) => void) => void;
   removeMessageHandler: (handler: (data: any) => void) => void;
-}
-
-interface Player {
-  id: string;
-  pseudo: string;
-  is_owner: boolean;
-  score?: number;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -133,9 +127,11 @@ export function WebSocketProvider({
           }))
         );
         break;
-      case "start_new_round":
+      case "game_started":
       case "round_complete":
         if (data.players) {
+          console.log(data.type, "event received");
+          console.log("Received players data:", data.players);
           setPlayers(data.players);
         }
         break;

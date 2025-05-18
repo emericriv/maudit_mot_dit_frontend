@@ -7,6 +7,8 @@ import { GuessList } from "../components/GuessList";
 import { RoundComplete } from "../components/RoundComplete";
 import { GamePhases } from "../components/GamePhases";
 import { Toaster, toast } from "react-hot-toast";
+import { GameEndPage } from "./GameEndPage";
+import { Player } from "../services/apiServices";
 
 interface WordChoice {
   word1: { word: string; clues: number };
@@ -39,6 +41,8 @@ interface GameState {
     currentPlayer: { id: string; pseudo: string };
     perfect: boolean;
   } | null;
+  currentRound: number;
+  totalRounds: number;
 }
 
 export default function GamePage() {
@@ -50,8 +54,10 @@ export default function GamePage() {
     addMessageHandler,
     removeMessageHandler,
     sendMessage,
+    roomCode,
   } = useWebSocket();
-
+  const [gameEnded, setGameEnded] = useState(false);
+  const [finalPlayers, setFinalPlayers] = useState<Player[]>([]);
   const [gameState, setGameState] = useState<GameState>({
     phase: "choice",
     currentPlayer: "",
@@ -63,6 +69,8 @@ export default function GamePage() {
     currentGuesses: [],
     guesses: [],
     roundComplete: null,
+    currentRound: 1,
+    totalRounds: 2,
   });
 
   useEffect(() => {
@@ -75,14 +83,20 @@ export default function GamePage() {
       console.log("Message reçu :", data);
       switch (data.type) {
         case "game_started":
+          setGameEnded(false);
           setGameState((prev) => ({
             ...prev,
             currentPlayer: data.currentPlayer,
             wordChoices: data.wordChoices,
             timeLeft: data.timeLeft,
-            phase: "choice",
-            givenClues: [],
-            guesses: [],
+            phase: data.phase || "choice",
+            givenClues: data.givenClues || [],
+            guesses: data.guesses || [],
+            requiredClues: data.requiredClues || 0,
+            currentRound: data.currentRound || 1,
+            totalRounds: data.totalRounds || 2,
+            currentGuesses: [],
+            roundComplete: null,
           }));
           break;
 
@@ -158,7 +172,13 @@ export default function GamePage() {
             currentGuesses: [],
             guesses: [],
             roundComplete: null,
+            currentRound: data.currentRound,
+            totalRounds: data.totalRounds,
           });
+          break;
+        case "game_end":
+          setGameEnded(true);
+          setFinalPlayers(data.players);
           break;
         case "error":
           toast.error(data.message);
@@ -169,6 +189,10 @@ export default function GamePage() {
     addMessageHandler(handleMessage);
     return () => removeMessageHandler(handleMessage);
   }, []);
+
+  if (gameEnded) {
+    return <GameEndPage players={finalPlayers} roomCode={roomCode} />;
+  }
 
   const handleWordChoice = (word: string) => {
     sendMessage({
@@ -260,6 +284,8 @@ export default function GamePage() {
                 currentPlayer={gameState.currentPlayer}
                 currentPlayerId={currentPlayerId}
                 phaseMessage={getPhaseMessage()}
+                currentRound={gameState.currentRound}
+                totalRounds={gameState.totalRounds}
               />
               <GamePhases
                 phase={gameState.phase}

@@ -22,6 +22,7 @@ export default function LobbyPage() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
+  const [totalRounds, setTotalRounds] = useState(2);
 
   useEffect(() => {
     const handleMessage = (data: any) => {
@@ -147,10 +148,31 @@ export default function LobbyPage() {
             </div>
 
             {isOwner && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">
+                  Nombre de tours
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="2"
+                    max="10"
+                    value={totalRounds}
+                    onChange={(e) => setTotalRounds(parseInt(e.target.value))}
+                    className="range-slider"
+                  />
+                  <span className="w-8 text-center">{totalRounds}</span>
+                </div>
+              </div>
+            )}
+
+            {isOwner && (
               <button
                 onClick={() =>
                   socket?.readyState === WebSocket.OPEN &&
-                  socket.send(JSON.stringify({ type: "start_game" }))
+                  socket.send(
+                    JSON.stringify({ type: "start_game", totalRounds })
+                  )
                 }
                 disabled={!canStartGame}
                 className={`mt-4 w-full py-2 px-4 rounded-full font-bold transition-all ${
