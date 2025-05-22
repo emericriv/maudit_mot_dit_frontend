@@ -1,6 +1,6 @@
 # 💻 Maudit Mot Dit - Frontend
 
-Frontend minimal en **React + TypeScript** avec **Vite** et **Tailwind CSS**. Utilise **Axios** pour la communication avec l’API Django.
+Frontend en **React + TypeScript** avec **Vite** et **Tailwind CSS**. Utilise **Axios** pour la communication avec l’API Django.
 
 ---
 
@@ -65,7 +65,7 @@ const apiClient = axios.create({
 Connexion à l’endpoint WebSocket :
 
 ```ts
-const socket = new WebSocket("ws://localhost:8000/ws/game/<room_code>/")
+const socket = new WebSocket("ws://localhost:8000/ws/game/<room_code>/");
 ```
 
 ---
@@ -74,4 +74,8 @@ const socket = new WebSocket("ws://localhost:8000/ws/game/<room_code>/")
 
 - Création et jointure de rooms via l’API
 - Communication WebSocket en live
+- jeu par phases de choix de mot / don d'indice / proposition des autres joueurs
+- Passage de round en round géré par le propriétaire de la room
+- Timer pour chaque phase avec pénalités / passage au tour suivant en fonction de la phase concernée
+- Tableau des scores final
 - Interface stylisée avec Tailwind
