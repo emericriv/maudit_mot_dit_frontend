@@ -10,13 +10,20 @@ interface RoundCompleteProps {
   };
   isOwner: boolean;
   onNextRound: () => void;
+  isLastPlayer: boolean;
+  isLastRound: boolean;
 }
 
 export const RoundComplete: React.FC<RoundCompleteProps> = ({
   roundData,
   isOwner,
   onNextRound,
+  isLastPlayer,
+  isLastRound,
 }) => {
+  // Déterminer si c'est la toute fin du jeu
+  const isGameEnd = isLastPlayer && isLastRound;
+
   return (
     <div className="bg-success/10 border border-success text-success p-6 rounded-lg">
       <h2 className="text-xl font-bold mb-4">Round terminé !</h2>
@@ -82,7 +89,7 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
             onClick={onNextRound}
             className="bg-primary text-background py-2 px-6 rounded-full hover:bg-accent hover:cursor-pointer transition"
           >
-            Passer au round suivant
+            {isGameEnd ? "Voir le classement final" : "Passer au round suivant"}
           </button>
         </div>
       )}

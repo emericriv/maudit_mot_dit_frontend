@@ -6,12 +6,23 @@ interface PlayerScoresProps {
     is_owner: boolean;
   }>;
   currentPlayer: string;
+  playerOrder?: string[];
 }
 
-export const PlayerScores = ({ players, currentPlayer }: PlayerScoresProps) => {
+export const PlayerScores = ({
+  players,
+  currentPlayer,
+  playerOrder,
+}: PlayerScoresProps) => {
+  const orderedPlayers = playerOrder?.length
+    ? (playerOrder
+        .map((id) => players.find((p) => p.id === id))
+        .filter((player) => player !== undefined) as typeof players)
+    : players;
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      {players.map((player) => (
+      {orderedPlayers.map((player) => (
         <div
           key={player.id}
           className={`text-center p-4 rounded-lg border border-border shadow-sm ${

@@ -20,7 +20,7 @@ export const WordChoicePhase = ({
             <button
               key={index}
               onClick={() => onWordChoice(w.word)}
-              className="p-4 bg-card border border-border rounded-xl hover:bg-muted transition duration-200 cursor-pointer text-left"
+              className="p-4 bg-card border border-border rounded-xl hover:bg-primary/10 hover:border-primary transition-all duration-200 cursor-pointer text-left"
             >
               <div className="text-lg font-semibold text-primary">{w.word}</div>
               <div className="text-sm text-muted-foreground">

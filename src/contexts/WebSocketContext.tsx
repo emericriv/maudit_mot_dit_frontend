@@ -15,6 +15,7 @@ interface WebSocketContextType {
   sendMessage: (message: any) => void;
   currentPlayerId: string;
   players: Player[];
+  playerOrder: string[];
   roomCode: string;
   addMessageHandler: (handler: (data: any) => void) => void;
   removeMessageHandler: (handler: (data: any) => void) => void;
@@ -37,6 +38,7 @@ export function WebSocketProvider({
   const [isConnecting, setIsConnecting] = useState(true);
   const [currentPlayerId, setCurrentPlayerId] = useState("");
   const [players, setPlayers] = useState<Player[]>([]);
+  const [playerOrder, setPlayerOrder] = useState<string[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -128,10 +130,20 @@ export function WebSocketProvider({
         );
         break;
       case "game_started":
-      case "round_complete":
+      case "new_round":
+        // Gérer l'ordre des joueurs
+        if (data.playerOrder) {
+          setPlayerOrder(data.playerOrder);
+        }
+        // Gestion des joueurs existante
         if (data.players) {
           console.log(data.type, "event received");
           console.log("Received players data:", data.players);
+          setPlayers(data.players);
+        }
+        break;
+      case "round_complete":
+        if (data.players) {
           setPlayers(data.players);
         }
         break;
@@ -153,6 +165,7 @@ export function WebSocketProvider({
         sendMessage,
         currentPlayerId,
         players,
+        playerOrder,
         roomCode,
         addMessageHandler,
         removeMessageHandler,

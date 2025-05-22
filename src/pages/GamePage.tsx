@@ -51,6 +51,7 @@ export default function GamePage() {
     isConnecting,
     currentPlayerId,
     players,
+    playerOrder,
     addMessageHandler,
     removeMessageHandler,
     sendMessage,
@@ -263,6 +264,7 @@ export default function GamePage() {
           score: player.score ?? 0,
         }))}
         currentPlayer={gameState.currentPlayer}
+        playerOrder={playerOrder}
       />
 
       <div className="bg-muted text-text rounded-xl shadow-md border border-border p-6 mb-6">
@@ -274,6 +276,12 @@ export default function GamePage() {
                 players.find((p) => p.id === currentPlayerId)?.is_owner ?? false
               }
               onNextRound={() => sendMessage({ type: "start_new_round" })}
+              isLastRound={gameState.currentRound === gameState.totalRounds}
+              isLastPlayer={
+                // Vérifie si le joueur actuel est le dernier de la liste
+                playerOrder.length > 0 &&
+                gameState.currentPlayer === playerOrder[playerOrder.length - 1]
+              }
             />
           ) : (
             <>
