@@ -1,6 +1,7 @@
 # 💻 Maudit Mot Dit - Frontend
 
 Frontend en **React + TypeScript** avec **Vite** et **Tailwind CSS**. Utilise **Axios** pour la communication avec l’API Django.
+Cette interface reprenant l'univers du jeu de société maudit mot dit permet de profiter de l'univers du jeu. Après avoir passé la page d'accueil, il est possible de créer ou rejoindre un salon et de jouer avec ses amis. Les règles du jeu sont expliquées directement sur le site.
 
 ---
 
