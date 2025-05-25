@@ -48,7 +48,7 @@ export default function JoinRoomPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="roomCode" className="block mb-1 font-semibold">
-              Code de la room
+              Code du salon
             </label>
             <input
               id="roomCode"

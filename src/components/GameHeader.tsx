@@ -5,8 +5,6 @@ interface GameHeaderProps {
   currentPlayer: string;
   currentPlayerId: string;
   phaseMessage: string;
-  currentRound: number;
-  totalRounds: number;
 }
 
 export const GameHeader = ({
@@ -16,15 +14,10 @@ export const GameHeader = ({
   currentPlayer,
   currentPlayerId,
   phaseMessage,
-  currentRound,
-  totalRounds,
 }: GameHeaderProps) => {
   return (
     <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
       <div className="text-xl font-bold">⏳ Temps restant : {timeLeft}s</div>
-      <div className="text-sm text-muted-foreground">
-        Tour {currentRound}/{totalRounds}
-      </div>
 
       {requiredClues > 0 && currentPlayer === currentPlayerId && (
         <div className="flex items-center gap-2 text-lg">

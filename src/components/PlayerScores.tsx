@@ -21,11 +21,11 @@ export const PlayerScores = ({
     : players;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {orderedPlayers.map((player) => (
         <div
           key={player.id}
-          className={`text-center p-4 rounded-lg border border-border shadow-sm ${
+          className={`text-center py-4 px-6 rounded-lg border border-border shadow-sm ${
             player.id === currentPlayer
               ? "bg-accent text-background"
               : "bg-card"

@@ -9,6 +9,7 @@ import { GamePhases } from "../components/GamePhases";
 import { Toaster, toast } from "react-hot-toast";
 import { GameEndPage } from "./GameEndPage";
 import { Player } from "../services/apiServices";
+import { RoundIndicator } from "../components/RoundIndicator";
 
 interface WordChoice {
   word1: { word: string; clues: number };
@@ -258,14 +259,20 @@ export default function GamePage() {
         )
       )}
 
-      <PlayerScores
-        players={players.map((player) => ({
-          ...player,
-          score: player.score ?? 0,
-        }))}
-        currentPlayer={gameState.currentPlayer}
-        playerOrder={playerOrder}
-      />
+      <div className="flex justify-between items-center mb-6">
+        <PlayerScores
+          players={players.map((player) => ({
+            ...player,
+            score: player.score ?? 0,
+          }))}
+          currentPlayer={gameState.currentPlayer}
+          playerOrder={playerOrder}
+        />
+        <RoundIndicator
+          currentRound={gameState.currentRound}
+          totalRounds={gameState.totalRounds}
+        />
+      </div>
 
       <div className="bg-muted text-text rounded-xl shadow-md border border-border p-6 mb-6">
         <div className="mt-4">
@@ -292,8 +299,6 @@ export default function GamePage() {
                 currentPlayer={gameState.currentPlayer}
                 currentPlayerId={currentPlayerId}
                 phaseMessage={getPhaseMessage()}
-                currentRound={gameState.currentRound}
-                totalRounds={gameState.totalRounds}
               />
               <GamePhases
                 phase={gameState.phase}

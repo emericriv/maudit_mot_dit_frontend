@@ -56,17 +56,6 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
         </>
       ) : roundData.clueMissing ? (
         <>
-          <h3 className="text-2xl font-bold mb-4 text-red-500">
-            Personne n'a trouvé le mot !
-          </h3>
-          <p className="mb-2">Le mot était : {roundData.word}</p>
-          <p className="mb-4">
-            Il devait être deviné en {roundData.requiredClues} indice
-            {roundData.requiredClues > 1 ? "s" : ""}
-          </p>
-        </>
-      ) : (
-        <>
           <h3 className="text-2xl font-bold mb-4">
             {roundData.currentPlayer.pseudo} n'a pas donné d'indice !
           </h3>
@@ -80,6 +69,17 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
             {roundData.requiredClues > 1 ? "en" : ""}t attendu
             {roundData.requiredClues > 1 ? "s" : ""} :{" "}
             {roundData.currentPlayer.pseudo} perd donc autant de points.
+          </p>
+        </>
+      ) : (
+        <>
+          <h3 className="text-2xl font-bold mb-4 text-red-500">
+            Personne n'a trouvé le mot !
+          </h3>
+          <p className="mb-2">Le mot était : {roundData.word}</p>
+          <p className="mb-4">
+            Il devait être deviné en {roundData.requiredClues} indice
+            {roundData.requiredClues > 1 ? "s" : ""}
           </p>
         </>
       )}
