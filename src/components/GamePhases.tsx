@@ -1,15 +1,13 @@
 import { WordChoicePhase } from "./WordChoicePhase";
 import { CluePhase } from "./CluePhase";
 import { GuessPhase } from "./GuessPhase";
+import { WordChoice } from "../services/apiServices";
 
 interface GamePhasesProps {
   phase: "choice" | "clue" | "guess";
   gameState: {
     currentPlayer: string;
-    wordChoices: {
-      word1: { word: string; clues: number };
-      word2: { word: string; clues: number };
-    } | null;
+    wordChoices: WordChoice | null;
     selectedWord: string;
     currentGuesses: Array<{ playerId: string; word: string }>;
   };

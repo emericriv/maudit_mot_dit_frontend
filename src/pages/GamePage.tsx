@@ -8,13 +8,8 @@ import { RoundComplete } from "../components/RoundComplete";
 import { GamePhases } from "../components/GamePhases";
 import { Toaster, toast } from "react-hot-toast";
 import { GameEndPage } from "./GameEndPage";
-import { Player } from "../services/apiServices";
+import { Player, RoundCompleteData, WordChoice } from "../services/apiServices";
 import { RoundIndicator } from "../components/RoundIndicator";
-
-interface WordChoice {
-  word1: { word: string; clues: number };
-  word2: { word: string; clues: number };
-}
 
 interface GameState {
   phase: "choice" | "clue" | "guess";
@@ -34,14 +29,7 @@ interface GameState {
     word: string;
     timestamp: string;
   }>;
-  roundComplete: {
-    winner: { id: string; pseudo: string };
-    cluesCount: number;
-    requiredClues: number;
-    word: string;
-    currentPlayer: { id: string; pseudo: string };
-    perfect: boolean;
-  } | null;
+  roundComplete: RoundCompleteData | null;
   currentRound: number;
   totalRounds: number;
 }
@@ -148,17 +136,31 @@ export default function GamePage() {
           break;
 
         case "round_complete":
-          setGameState((prev) => ({
-            ...prev,
-            roundComplete: {
-              winner: data.winner,
-              cluesCount: data.cluesCount,
-              requiredClues: data.requiredClues,
-              word: data.word,
-              currentPlayer: data.currentPlayer,
-              perfect: data.perfect,
-            },
-          }));
+          console.log("Tour terminé", data);
+          console.log("data.winner:", data.winner, "data:", data);
+          if (data.winner) {
+            setGameState((prev) => ({
+              ...prev,
+              roundComplete: {
+                winner: data.winner,
+                cluesCount: data.cluesCount,
+                requiredClues: data.requiredClues,
+                canMalus: data.canMalus,
+                word: data.word,
+                currentPlayer: data.currentPlayer,
+                perfect: data.perfect,
+              },
+            }));
+          }
+          if (data.malusApplied) {
+            setGameState((prev) => ({
+              ...prev,
+              roundComplete: prev.roundComplete
+                ? { ...prev.roundComplete, canMalus: false }
+                : null,
+            }));
+            toast.success(data.message);
+          }
           break;
 
         case "new_round":

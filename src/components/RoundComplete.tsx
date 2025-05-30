@@ -1,9 +1,12 @@
+import { useWebSocket } from "../contexts/WebSocketContext";
+
 interface RoundCompleteProps {
   roundData: {
     winner?: { id: string; pseudo: string };
     clueMissing?: boolean;
     cluesCount: number;
     requiredClues: number;
+    canMalus: boolean;
     word: string;
     currentPlayer: { id: string; pseudo: string };
     perfect: boolean;
@@ -23,6 +26,7 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
 }) => {
   // Déterminer si c'est la toute fin du jeu
   const isGameEnd = isLastPlayer && isLastRound;
+  const { sendMessage, players, currentPlayerId } = useWebSocket();
 
   return (
     <div className="bg-success/10 border border-success text-success p-6 rounded-lg">
@@ -53,6 +57,36 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
               {roundData.currentPlayer.pseudo} ne gagne pas de points.
             </p>
           )}
+          {roundData.canMalus &&
+            (roundData.currentPlayer.id == currentPlayerId ? (
+              <div className="mb-4">
+                <label className="block mb-2 font-semibold">
+                  Choisir un joueur à maluser :
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {players
+                    .filter((p) => p.id !== currentPlayerId)
+                    .map((player) => (
+                      <button
+                        key={player.id}
+                        className="bg-primary text-background px-4 py-2 rounded-full hover:bg-accent transition"
+                        onClick={() =>
+                          sendMessage({
+                            type: "apply-malus",
+                            targetPlayerPseudo: player.pseudo,
+                          })
+                        }
+                      >
+                        {player.pseudo}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-warning mb-4">
+                {roundData.currentPlayer.pseudo} choisit un joueur à maluser.
+              </p>
+            ))}
         </>
       ) : roundData.clueMissing ? (
         <>
@@ -83,7 +117,7 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
           </p>
         </>
       )}
-      {isOwner && (
+      {isOwner && !roundData.canMalus && (
         <div className="flex justify-center mt-4">
           <button
             onClick={onNextRound}

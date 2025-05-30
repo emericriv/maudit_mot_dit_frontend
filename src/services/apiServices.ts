@@ -7,6 +7,23 @@ export interface Player {
   score: number;
 }
 
+export interface WordChoice {
+  word1: { word: string; clues: number; malus: boolean };
+  word2: { word: string; clues: number; malus: boolean };
+}
+
+export interface RoundCompleteData {
+  winner: { id: string; pseudo: string };
+  cluesCount: number;
+  requiredClues: number;
+  canMalus: boolean;
+  word: string;
+  currentPlayer: { id: string; pseudo: string };
+  perfect: boolean;
+  malusApplied?: boolean;
+  message?: string;
+}
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
