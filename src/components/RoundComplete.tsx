@@ -1,4 +1,5 @@
 import { useWebSocket } from "../contexts/WebSocketContext";
+import { AnimatedDots } from "./AnimatedDots";
 
 interface RoundCompleteProps {
   roundData: {
@@ -59,7 +60,7 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
           )}
           {roundData.canMalus &&
             (roundData.currentPlayer.id == currentPlayerId ? (
-              <div className="mb-4">
+              <div className="w-full flex flex-col items-center justify-centermb-4">
                 <label className="block mb-2 font-semibold">
                   Choisir un joueur à maluser :
                 </label>
@@ -69,7 +70,7 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
                     .map((player) => (
                       <button
                         key={player.id}
-                        className="bg-primary text-background px-4 py-2 rounded-full hover:bg-accent transition"
+                        className="bg-card border border-border rounded-full hover:bg-primary/10 hover:border-primary text-lg font-semibold text-primary transition-all py-2 px-6 duration-200 cursor-pointer"
                         onClick={() =>
                           sendMessage({
                             type: "apply-malus",
@@ -83,9 +84,12 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
                 </div>
               </div>
             ) : (
-              <p className="text-warning mb-4">
-                {roundData.currentPlayer.pseudo} choisit un joueur à maluser.
-              </p>
+              <div className="mb-4 flex items-center justify-center w-full">
+                <span className="inline-block font-semibold px-3 py-2 shadow">
+                  {roundData.currentPlayer.pseudo} choisit un joueur à maluser{" "}
+                  <AnimatedDots />
+                </span>
+              </div>
             ))}
         </>
       ) : roundData.clueMissing ? (

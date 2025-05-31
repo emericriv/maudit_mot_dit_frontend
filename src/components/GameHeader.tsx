@@ -1,10 +1,12 @@
+import React from "react";
+
 interface GameHeaderProps {
   timeLeft: number;
   requiredClues: number;
   givenClues: string[];
   currentPlayer: string;
   currentPlayerId: string;
-  phaseMessage: string;
+  phaseMessage: React.ReactNode;
 }
 
 export const GameHeader = ({

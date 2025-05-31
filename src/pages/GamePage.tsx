@@ -10,6 +10,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { GameEndPage } from "./GameEndPage";
 import { Player, RoundCompleteData, WordChoice } from "../services/apiServices";
 import { RoundIndicator } from "../components/RoundIndicator";
+import { AnimatedDots } from "../components/AnimatedDots";
 
 interface GameState {
   phase: "choice" | "clue" | "guess";
@@ -227,19 +228,35 @@ export default function GamePage() {
 
     switch (gameState.phase) {
       case "choice":
-        return isCurrentPlayer
-          ? "C'est à vous de choisir un mot !"
-          : currentPlayerPseudo
-          ? `${currentPlayerPseudo} choisit un mot...`
-          : "Sélection du joueur en cours...";
+        if (isCurrentPlayer) {
+          return "C'est à vous de choisir un mot !";
+        }
+        if (currentPlayerPseudo) {
+          return (
+            <>
+              {currentPlayerPseudo} choisit un mot <AnimatedDots />
+            </>
+          );
+        }
+        return "Sélection du joueur en cours...";
       case "clue":
-        return isCurrentPlayer
-          ? "Donnez un indice pour faire deviner votre mot !"
-          : `${currentPlayerPseudo} donne un indice...`;
+        if (isCurrentPlayer) {
+          return "Donnez un indice pour faire deviner votre mot !";
+        }
+        return (
+          <>
+            {currentPlayerPseudo} donne un indice <AnimatedDots />
+          </>
+        );
       case "guess":
-        return isCurrentPlayer
-          ? "Attendez que les autres joueurs devinent..."
-          : "À vous de deviner le mot !";
+        if (isCurrentPlayer) {
+          return (
+            <>
+              Attendez que les autres joueurs devinent <AnimatedDots />
+            </>
+          );
+        }
+        return "À vous de deviner le mot !";
       default:
         return "";
     }
