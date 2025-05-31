@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useWebSocket } from "../contexts/WebSocketContext";
+import { HomeLink } from "../components/HomeLink";
 
 interface Message {
   sender: string;
@@ -93,17 +94,7 @@ export default function LobbyPage() {
   return (
     <div className="min-h-screen bg-background text-text px-4 py-6">
       {/* Lien de retour */}
-      <Link
-        to="/"
-        className="absolute top-6 left-6 text-primary hover:underline text-sm flex items-center"
-      >
-        ← Retour à l'accueil
-        <img
-          src="/Maudit_mot_dit_logo.png"
-          alt="Logo Maudit Mot Dit"
-          className="w-10 h-10 ml-1"
-        />
-      </Link>
+      <HomeLink />
 
       <div className="max-w-5xl mx-auto mt-20 bg-background text-text p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">

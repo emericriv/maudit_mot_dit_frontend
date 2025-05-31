@@ -64,10 +64,6 @@ export default function GamePage() {
     totalRounds: 2,
   });
 
-  useEffect(() => {
-    sendMessage({ type: "join_game" });
-  }, []);
-
   // WebSocket message handler
   useEffect(() => {
     const handleMessage = (data: any) => {
@@ -194,6 +190,12 @@ export default function GamePage() {
     addMessageHandler(handleMessage);
     return () => removeMessageHandler(handleMessage);
   }, []);
+
+  useEffect(() => {
+    if (isConnected) {
+      sendMessage({ type: "join_game" });
+    }
+  }, [isConnected]);
 
   if (gameEnded) {
     return <GameEndPage players={finalPlayers} roomCode={roomCode} />;
