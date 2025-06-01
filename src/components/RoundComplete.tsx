@@ -117,11 +117,11 @@ export const RoundComplete: React.FC<RoundCompleteProps> = ({
           <p className="mb-2">Le mot était : {roundData.word}</p>
           <p className="mb-4">
             Il devait être deviné en {roundData.requiredClues} indice
-            {roundData.requiredClues > 1 ? "s" : ""}
+            {roundData.requiredClues > 1 ? "s" : ""}.
           </p>
         </>
       )}
-      {isOwner && !roundData.canMalus && (
+      {isOwner && (!roundData.canMalus || !roundData.winner) && (
         <div className="flex justify-center mt-4">
           <button
             onClick={onNextRound}

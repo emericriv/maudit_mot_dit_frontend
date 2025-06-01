@@ -133,9 +133,16 @@ export default function GamePage() {
           break;
 
         case "round_complete":
-          console.log("Tour terminé", data);
           console.log("data.winner:", data.winner, "data:", data);
-          if (data.winner) {
+          if (data.malusApplied) {
+            setGameState((prev) => ({
+              ...prev,
+              roundComplete: prev.roundComplete
+                ? { ...prev.roundComplete, canMalus: false }
+                : null,
+            }));
+            toast.success(data.message);
+          } else {
             setGameState((prev) => ({
               ...prev,
               roundComplete: {
@@ -148,15 +155,6 @@ export default function GamePage() {
                 perfect: data.perfect,
               },
             }));
-          }
-          if (data.malusApplied) {
-            setGameState((prev) => ({
-              ...prev,
-              roundComplete: prev.roundComplete
-                ? { ...prev.roundComplete, canMalus: false }
-                : null,
-            }));
-            toast.success(data.message);
           }
           break;
 
@@ -266,7 +264,42 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-background text-text px-4 py-6">
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#291f44", // fond violet foncé
+            color: "#fff", // texte blanc
+            borderRadius: "1rem",
+            border: "2px solid #feca26",
+            fontWeight: 600,
+            fontFamily: "inherit",
+            boxShadow: "0 4px 24px 0 rgba(46, 16, 101, 0.15)",
+          },
+          success: {
+            iconTheme: {
+              primary: "#feca26", // jaune
+              secondary: "#291f44",
+            },
+            style: {
+              background: "#feca26", // toast succès jaune
+              color: "#291f44", // texte violet foncé
+              border: "2px solid #291f44",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#e53e3e", // rouge
+              secondary: "#291f44",
+            },
+            style: {
+              background: "#291f44", // toast erreur rouge
+              color: "#feca26",
+              border: "2px solid #feca26",
+            },
+          },
+        }}
+      />
       {/* Connexion status */}
       {isConnecting ? (
         <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded mb-4">
